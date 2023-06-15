@@ -54,7 +54,8 @@ mongoose
               console.log(`User Connected: ${socket.id}`);
               messagesControllers.storeSocket(socket);
               socket.on("disconnect", () => {
-                console.log("User Disconnected", socket.id);
+                console.log("User Disconnected from backend", socket.id);
+                messagesControllers.notifyDC(socket.id);
               });
             });
             console.log("SERVER RUNNING");

@@ -33,7 +33,7 @@ export default function App () {
       setCalc(false);
     }
 
-    const newSocket = io.connect("http://192.168.137.51:3007");
+    const newSocket = io.connect("http://192.168.1.20:3007");
     setSocket(newSocket);
 
     async function prepareRecording() {
@@ -86,7 +86,7 @@ export default function App () {
           setTz(decodedToken.tz);
           setControlledBy(decodedToken.controlledBy);
           try{
-            await fetch("http://192.168.137.51:8000/send/firstmessage", {
+            await fetch("http://192.168.1.20:8000/send/firstmessage", {
                 method: "POST",
                 headers: {
                 "Content-Type" : "application/json"
@@ -152,12 +152,12 @@ export default function App () {
         <Stack.Navigator>
         {(isSignedIn && !calc) ? (
           <>
-            <Stack.Screen name="chat" options={{headerShown: false,}} component={Chat} initialParams={{id: tz, socket: socket, setTimesFunc: setTimesHandler}} />
+            <Stack.Screen name="chat" options={{headerShown: false,}} component={Chat} initialParams={{id: tz, socket: socket, setTimesFunc: setTimesHandler, afterAuth: false}} />
           </>
         ) : (
           <>
             <Stack.Screen name="auth" options={{headerShown: false,}} component={Auth} initialParams={{setSignedFunc: setSignedInHandler, setTzControlFunc: setTzControl}} />
-            <Stack.Screen name="chat" options={{headerShown: false,}} component={Chat} initialParams={{id: tz, socket: socket, setTimesFunc: setTimesHandler}} />
+            <Stack.Screen name="chat" options={{headerShown: false,}} component={Chat} initialParams={{id: tz, socket: socket, setTimesFunc: setTimesHandler, afterAuth: true}} />
           </>
         )}
         </Stack.Navigator>

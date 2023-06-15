@@ -53,9 +53,7 @@ const AgentManagementPage = () => {
             socket.on('askForAgent', async (message) => {
                 setAgentToTransfer(message.agent);
                 setWhoAskTransfer(message.whoAsk);
-                alert("whoAsk:",message.whoAsk);
                 if(message.whoAsk != location){
-                    alert("hey" , location)
                     setIsTransfering(true);
                 }
             })
@@ -67,7 +65,6 @@ const AgentManagementPage = () => {
             });
     
             socket.on('emergencyPing', (message) => {
-            alert(message.uri);
             setEmergencyLocation(message.location);
             setEmergencyUri(message.uri);
             setEmergencyAgent(message.agentId);

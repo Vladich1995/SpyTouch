@@ -16,11 +16,14 @@ function Chat ({route}) {
     useEffect(()=>{
         const getUserParams = async () => {
             try{
-                await fetch(`http://192.168.137.51:8000/getuser/${route.params.id}`).then((response) => {
+                await fetch(`http://192.168.1.20:8000/getuser/${route.params.id}`).then((response) => {
                     return response.json();
                 }).then((data) => {
                     setUser(data.user);
                     console.log("user set");
+                    if(route.params.afterAuth == true){
+                        sendFirstMessage(data.user.tz);
+                    }
                 })
             } catch (err){
                 console.log("errorrr:",err);
@@ -29,6 +32,26 @@ function Chat ({route}) {
         
         getUserParams();
     }, []);
+
+    const sendFirstMessage = async (tz) => {
+        try{
+            await fetch("http://192.168.1.20:8000/send/firstmessage", {
+                method: "POST",
+                headers: {
+                "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({
+                    id: tz
+                })
+            }).then((response) => {
+                return response.json();
+            }).then((data) => {
+                console.log(data.success);
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }
 
 
     
@@ -85,7 +108,7 @@ function Chat ({route}) {
             });
             tempMessage = messageToSend;
             setMessageToSend("");
-            await fetch("http://192.168.137.51:8000/send", {
+            await fetch("http://192.168.1.20:8000/send", {
                 method: "POST",
                 headers: {
                     "Content-Type" : "application/json"

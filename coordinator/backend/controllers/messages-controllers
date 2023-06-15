@@ -205,16 +205,18 @@ socket.on('agentLocation', async(message) => {
     }
 });
 
-const setAppHours = (req, res, next) => {
-    const {agentId, startHour, endHour} = req.body;
-    try{
-        socket.emit("setAppHours", {
-            agentId: agentId,
-            startHour: startHour,
-            endHour: endHour
-        });
-    }   catch (err) {
-        console.log(err);
+const notifyDC = (socketid) => {
+    for(let i = 0; i< frontContacts.length; i++){
+        if(frontContacts[i].socketID == socketid){
+            try{
+                socket.emit('onDC', {
+                    userID: frontContacts[i].user
+                })
+            } catch (err) {
+                console.log("Error notifying about dc");
+            }
+            break;
+        }
     }
 }
 
@@ -249,6 +251,7 @@ const sendTimes = (req, res, next) => {
 
 exports.storeSocket= storeSocket;
 exports.storeFrontIO = storeFrontIO;
+exports.notifyDC = notifyDC;
 ///
 
 

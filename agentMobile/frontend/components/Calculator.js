@@ -53,7 +53,7 @@ function Calculator ({id, controlledBy, socket, setTimesFunc}) {
         try{
             let loc = await Location.getCurrentPositionAsync({});
             try{
-                await fetch("http://192.168.137.51:8000/send/location", {
+                await fetch("http://192.168.1.20:8000/send/location", {
                     method: "POST",
                     headers: {
                     "Content-Type" : "application/json"
@@ -134,7 +134,7 @@ function Calculator ({id, controlledBy, socket, setTimesFunc}) {
             if(uri != null && location != null){
                 console.log("Sending emergency");
                 try{
-                    await fetch("http://192.168.137.51:8000/send/emergency", {
+                    await fetch("http://192.168.1.20:8000/send/emergency", {
                         method: "POST",
                         headers: {
                         "Content-Type" : "application/json"

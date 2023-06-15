@@ -57,109 +57,109 @@ const storeSocket = (attr) => {
   socket2 = attr;
 };
 
-const sendEmergency = (req, res, next) => {
-  const { uri, location, id, controlledBy } = req.body;
-  socket.emit('emergencyMessage', {
-    uri: "https://storage.cloudconvert.com/tasks/023adef9-c1b8-485e-aaf6-2e89b93be5ba/input.mp3?AWSAccessKeyId=cloudconvert-production&Expires=1686868082&Signature=HnxZ8NjtXcocbrplPIr%2BBBphU0w%3D&response-content-disposition=attachment%3B%20filename%3D%22input.mp3%22&response-content-type=audio%2Fmpeg",
-    location: location,
-    id: id,
-    toWhom: controlledBy
-  });
-}
-
-
-// const sendEmergency = async (req, res, next) => {
+// const sendEmergency = (req, res, next) => {
 //   const { uri, location, id, controlledBy } = req.body;
+//   socket.emit('emergencyMessage', {
+//     uri: "https://storage.cloudconvert.com/tasks/023adef9-c1b8-485e-aaf6-2e89b93be5ba/input.mp3?AWSAccessKeyId=cloudconvert-production&Expires=1686868082&Signature=HnxZ8NjtXcocbrplPIr%2BBBphU0w%3D&response-content-disposition=attachment%3B%20filename%3D%22input.mp3%22&response-content-type=audio%2Fmpeg",
+//     location: location,
+//     id: id,
+//     toWhom: controlledBy
+//   });
+// }
 
-//   const encodedAudio = uri;
-//   const audioBuffer = Buffer.from(encodedAudio, 'base64');
-//   console.log(audioBuffer);
 
-//   const inputBuffer = Buffer.from(audioBuffer, 'base64');
+const sendEmergency = async (req, res, next) => {
+  const { uri, location, id, controlledBy } = req.body;
 
-//   try {
-//     let job = await cloudConvert.jobs.create({
-//       tasks: {
-//         'import-my-file': {
-//           operation: 'import/base64',
-//           file: encodedAudio,
-//           filename: 'input.3gp' // Provide the appropriate filename
-//         },
-//         'convert-my-file': {
-//           operation: 'convert',
-//           input: 'import-my-file',
-//           output_format: 'mp3'
-//         },
-//         "export-1": {
-//           "operation": "export/url",
-//           "input": 'convert-my-file',
-//           "inline": false,
-//           "archive_multiple_files": false
-//         }
-//       }
-//     });
+  const encodedAudio = uri;
+  const audioBuffer = Buffer.from(encodedAudio, 'base64');
+  console.log(audioBuffer);
 
-//     const exportTask = job.tasks.find(task => task.name === 'export-1');
-//     let selfUrl = exportTask.links['self'];
+  const inputBuffer = Buffer.from(audioBuffer, 'base64');
 
-//     console.log("job: ", job);
-//     console.log("data: ", exportTask);
-//     console.log('Converted file URL:', selfUrl);
+  try {
+    let job = await cloudConvert.jobs.create({
+      tasks: {
+        'import-my-file': {
+          operation: 'import/base64',
+          file: encodedAudio,
+          filename: 'input.3gp' // Provide the appropriate filename
+        },
+        'convert-my-file': {
+          operation: 'convert',
+          input: 'import-my-file',
+          output_format: 'mp3'
+        },
+        "export-1": {
+          "operation": "export/url",
+          "input": 'convert-my-file',
+          "inline": false,
+          "archive_multiple_files": false
+        }
+      }
+    });
 
-//     if (exportTask.status === 'finished') {
-//       socket.emit('emergencyMessage', {
-//         uri: selfUrl,
-//         location: location,
-//         id: id,
-//         toWhom: controlledBy
-//       });
+    const exportTask = job.tasks.find(task => task.name === 'export-1');
+    let selfUrl = exportTask.links['self'];
 
-//       res.json({ success: true });
-//     } else {
-//       // Retry mechanism
-//       const retryDelay = 5000; // 5 seconds (adjust as needed)
-//       const maxRetries = 3;
-//       let retryCount = 0;
+    console.log("job: ", job);
+    console.log("data: ", exportTask);
+    console.log('Converted file URL:', selfUrl);
 
-//       const checkStatus = async () => {
-//         try {
-//           const taskResponse = await axios.get(`https://api.cloudconvert.com/v2/tasks/${exportTask.id}`, {
-//             headers: {
-//               Authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiNmQ0YzA1ZDgxODE2OGU4MWQ2NzhlNTIxMTQ0ZmNkMDM3ODJlNjE1N2U2MWY2NzY1NjdkMDhmYzhlZmEzNDVkZGY5ZjliZGZmNDhjM2Y5NDQiLCJpYXQiOjE2ODY1OTQwMjkuMDQ5MDMsIm5iZiI6MTY4NjU5NDAyOS4wNDkwMzEsImV4cCI6NDg0MjI2NzYyOS4wNDMxLCJzdWIiOiI0ODc5NTE1NCIsInNjb3BlcyI6WyJ0YXNrLnJlYWQiLCJ0YXNrLndyaXRlIl19.Dbz0nBI4xfUsOL8-fDjTziMB8JJbA4imu3woP4mNwl-jOtvJAzskyT_7MkbW17Q-k2DadjIwUFDRw8xaJvTI6bqgb9go8YbcfMxFB7ka3WEEgAesitOzNmxwWi8fUB9Pv54u2w6pvWnmkaO2OucS1dNMAOLynYfMJJXelPL3qEHm1sh3t5ABRAsm3xvrokcS3P1UhOUNt2aG3RR80_X-L7IJ22mxRU_jVllq-Uq9gdXVzLFsd9tIcJUJxgd-7FkFRRb4dKH_qvdJ0_e7GPx3jUQApnTrAoF8zwawTjYfRfZiQKqgCzGXkPaJ3bdY32YOWmiYwP2e8Sll8abf5UDrcX9f39c3L0m7Gj3q7LPIVafiCblzhPiXQKKu6o4pjcf-7molWVEXGOA-QAhufc-l0_E2l09LB_sgGDrfbqQIxTuTSNrABgSDUAr4LCSUfjcakuImGhWcYGyF9X8mGKWU_Yg40YBpDD61el7pP4P_6E66stzlei9EmgBwqdJh-imRKmSaT-htbUslJHDoyWpRuIhNcSx7eoDz4jUQk24o4ovBL0vmztmo7ymaeG5UcSy_e7H_ULeZkU2GsEzCtxuapo62Hd3OY9XadWXaac7GIiZQLtnZX3rTx3CgswSQ0TC0qjKsDO1b6QbSSdPJE_t62WajP64yB2lW0THju6HPIlA' // Replace with your CloudConvert API key
-//             }
-//           });
+    if (exportTask.status === 'finished') {
+      socket.emit('emergencyMessage', {
+        uri: selfUrl,
+        location: location,
+        id: id,
+        toWhom: controlledBy
+      });
 
-//           const updatedExportTask = taskResponse.data.data;
+      res.json({ success: true });
+    } else {
+      // Retry mechanism
+      const retryDelay = 5000; // 5 seconds (adjust as needed)
+      const maxRetries = 3;
+      let retryCount = 0;
 
-//           if (updatedExportTask.status === 'finished') {
-//             socket.emit('emergencyMessage', {
-//               uri: updatedExportTask.result.files[0].url,
-//               location: location,
-//               id: id,
-//               toWhom: controlledBy
-//             });
+      const checkStatus = async () => {
+        try {
+          const taskResponse = await axios.get(`https://api.cloudconvert.com/v2/tasks/${exportTask.id}`, {
+            headers: {
+              Authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiNmQ0YzA1ZDgxODE2OGU4MWQ2NzhlNTIxMTQ0ZmNkMDM3ODJlNjE1N2U2MWY2NzY1NjdkMDhmYzhlZmEzNDVkZGY5ZjliZGZmNDhjM2Y5NDQiLCJpYXQiOjE2ODY1OTQwMjkuMDQ5MDMsIm5iZiI6MTY4NjU5NDAyOS4wNDkwMzEsImV4cCI6NDg0MjI2NzYyOS4wNDMxLCJzdWIiOiI0ODc5NTE1NCIsInNjb3BlcyI6WyJ0YXNrLnJlYWQiLCJ0YXNrLndyaXRlIl19.Dbz0nBI4xfUsOL8-fDjTziMB8JJbA4imu3woP4mNwl-jOtvJAzskyT_7MkbW17Q-k2DadjIwUFDRw8xaJvTI6bqgb9go8YbcfMxFB7ka3WEEgAesitOzNmxwWi8fUB9Pv54u2w6pvWnmkaO2OucS1dNMAOLynYfMJJXelPL3qEHm1sh3t5ABRAsm3xvrokcS3P1UhOUNt2aG3RR80_X-L7IJ22mxRU_jVllq-Uq9gdXVzLFsd9tIcJUJxgd-7FkFRRb4dKH_qvdJ0_e7GPx3jUQApnTrAoF8zwawTjYfRfZiQKqgCzGXkPaJ3bdY32YOWmiYwP2e8Sll8abf5UDrcX9f39c3L0m7Gj3q7LPIVafiCblzhPiXQKKu6o4pjcf-7molWVEXGOA-QAhufc-l0_E2l09LB_sgGDrfbqQIxTuTSNrABgSDUAr4LCSUfjcakuImGhWcYGyF9X8mGKWU_Yg40YBpDD61el7pP4P_6E66stzlei9EmgBwqdJh-imRKmSaT-htbUslJHDoyWpRuIhNcSx7eoDz4jUQk24o4ovBL0vmztmo7ymaeG5UcSy_e7H_ULeZkU2GsEzCtxuapo62Hd3OY9XadWXaac7GIiZQLtnZX3rTx3CgswSQ0TC0qjKsDO1b6QbSSdPJE_t62WajP64yB2lW0THju6HPIlA' // Replace with your CloudConvert API key
+            }
+          });
 
-//             res.json({ success: true });
-//           } else if (retryCount < maxRetries) {
-//             retryCount++;
-//             setTimeout(checkStatus, retryDelay);
-//           } else {
-//             console.log('Max retry attempts reached. Job is still processing. Please check again later.');
-//             res.json({ success: false });
-//           }
-//         } catch (err) {
-//           console.error(err);
-//           res.json({ success: false });
-//         }
-//       };
+          const updatedExportTask = taskResponse.data.data;
 
-//       setTimeout(checkStatus, retryDelay);
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     res.json({ success: false });
-//   }
-// };
+          if (updatedExportTask.status === 'finished') {
+            socket.emit('emergencyMessage', {
+              uri: updatedExportTask.result.files[0].url,
+              location: location,
+              id: id,
+              toWhom: controlledBy
+            });
+
+            res.json({ success: true });
+          } else if (retryCount < maxRetries) {
+            retryCount++;
+            setTimeout(checkStatus, retryDelay);
+          } else {
+            console.log('Max retry attempts reached. Job is still processing. Please check again later.');
+            res.json({ success: false });
+          }
+        } catch (err) {
+          console.error(err);
+          res.json({ success: false });
+        }
+      };
+
+      setTimeout(checkStatus, retryDelay);
+    }
+  } catch (err) {
+    console.error(err);
+    res.json({ success: false });
+  }
+};
 
 
 const sendFirst = (req, res, next) => {
@@ -197,6 +197,16 @@ const sendLocation = (req, res, next) => {
   }
 }
 
+const notifyDC = (socketid) => {
+  try{
+    socket.emit('onDC', {
+        userID: userID
+    })
+  } catch (err) {
+      console.log("Error notifying about dc");
+  }
+}
+
 
 exports.sendMessage = sendMessage;
 exports.firstMessage = firstMessage;
@@ -204,3 +214,4 @@ exports.storeSocket = storeSocket;
 exports.sendEmergency = sendEmergency;
 exports.sendFirst = sendFirst;
 exports.sendLocation = sendLocation;
+exports.notifyDC = notifyDC;

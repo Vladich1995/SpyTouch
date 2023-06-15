@@ -77,7 +77,7 @@ const establishSocketConnection = (list) => {
         updateSocketSettings(newMessage.id, socket.id, socket.request.connection.remoteAddress)
       }
       else{
-        contacts.push({id: newMessage.id, SocketID: socket.id, socketIP: socket.request.connection.remoteAddress, online: true});
+        contacts.push({id: newMessage.id, socketID: socket.id, socketIP: socket.request.connection.remoteAddress, online: true});
         addSocketSettings(newMessage.id, socket.id, socket.request.connection.remoteAddress, true);
       }
       console.log("CONTACTS AFTER FIRST MESSAGE:", contacts)
@@ -142,6 +142,7 @@ const establishSocketConnection = (list) => {
       try{
         if(contacts[index].online == true){
           console.log("audio link:", message.uri)
+          console.log("Socket: ",contacts[index].socketID);
           io.to(contacts[index].socketID).emit('emergency', {uri: message.uri, location: message.location, agentId: message.id});
         }
         else{
@@ -271,6 +272,23 @@ const establishSocketConnection = (list) => {
           console.log("error:", err);
       };
     }
+
+    socket.on('onDC', async (message) => {
+      console.log('disconnected from user');
+      let index;
+      for(let i = 0; i < contacts.length; i++){
+        if(contacts[i].id == message.userID){
+          index = i;
+          break;
+        }
+      }
+      if(contacts[index] != null){
+        let updated = await Contact.updateOne({id: contacts[index].id},{ $set: { online: false } });
+        contacts[index].online = false;
+      }
+      console.log(contacts);
+    });
+    
 
     // when server disconnects from user
     socket.on('disconnect', async ()=>{

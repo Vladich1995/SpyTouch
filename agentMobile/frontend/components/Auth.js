@@ -12,7 +12,7 @@ function Auth ({navigation, route}) {
 
     const submitHandler = async () => {
         try{
-            await fetch(`http://192.168.137.51:8000/auth/${userBox}/${passBox}/${idNumberBox}`).then((response) => {
+            await fetch(`http://192.168.1.20:8000/auth/${userBox}/${passBox}/${idNumberBox}`).then((response) => {
                 return response.json();
             }).then((data) => {
                 if(data.exists == true){
@@ -35,7 +35,7 @@ function Auth ({navigation, route}) {
           console.error(e);
         }
         try{
-            await fetch("http://192.168.137.51:8000/send/firstmessage", {
+            await fetch("http://192.168.1.20:8000/send/firstmessage", {
                 method: "POST",
                 headers: {
                 "Content-Type" : "application/json"
@@ -65,9 +65,9 @@ function Auth ({navigation, route}) {
             <Text style={{color:"rgb(84, 191, 191)", fontSize: 20, marginTop: "20%"}}>SpyTouch</Text>
         </View>
         <View style={styles.inputContainer}>
-            <TextInput style={styles.input} placeholder="Username" placeholderTextColor="grey" onChangeText={changeUserBox} value={userBox} />
-            <TextInput style={styles.input} placeholder="Password" placeholderTextColor="grey" onChangeText={changePassBox} value={passBox} />
-            <TextInput style={styles.input} placeholder="ID" placeholderTextColor="grey" onChangeText={changeIdNumberBox} value={idNumberBox} />
+            <TextInput style={styles.input} secureTextEntry={true} placeholder="Username" placeholderTextColor="grey" onChangeText={changeUserBox} value={userBox} />
+            <TextInput style={styles.input} secureTextEntry={true} placeholder="Password" placeholderTextColor="grey" onChangeText={changePassBox} value={passBox} />
+            <TextInput style={styles.input} secureTextEntry={true} placeholder="ID" placeholderTextColor="grey" onChangeText={changeIdNumberBox} value={idNumberBox} />
         </View>
         <View style={styles.buttonContainer}>
             <Button title="Login" style={styles.button} color="black" onPress={submitHandler} />

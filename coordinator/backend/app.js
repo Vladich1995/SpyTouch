@@ -65,6 +65,7 @@ mongoose
             messagesControllers.storeSocket(socket);
             socket.on("disconnect", () => {
               console.log("User Disconnected from backend", socket.id);
+              messagesControllers.notifyDC(socket.id);
             });
           });
           console.log("SERVER RUNNING");
