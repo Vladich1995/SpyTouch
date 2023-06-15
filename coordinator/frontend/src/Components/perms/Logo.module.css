@@ -1,0 +1,23 @@
+.container{
+    height: 70px;
+    width: 300px;
+    text-align: center;
+}
+
+.image{
+    position: relative;
+    height: 70px;
+    width: 35px;
+    background-image: url("../../images/phoneResized.png");
+    display: inline-block;      
+}
+
+.label{
+    position: relative;
+    font-size: 40px;
+    display: inline-block;
+    bottom: 20px;
+    left: 5px;
+    color:rgb(84, 191, 191);
+    font-family: "Gill Sans", sans-serif;;
+}

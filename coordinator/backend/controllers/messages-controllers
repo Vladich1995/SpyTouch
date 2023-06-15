@@ -1,0 +1,260 @@
+const mongoose = require('mongoose');
+const io = require("socket.io-client");
+var socket=io("http://localhost:3001/")
+const Message = require("../models/message");
+const User = require("../models/user");
+const Agent = require("../models/agent");
+
+
+let frontIO;
+let socket2;
+let userID;
+let frontContacts = [];
+
+
+
+socket.on('startEstablishConnection', ()=>{
+    console.log("establish connection request")
+    console.log(userID)
+    socket.emit('endEstablishConnection', {
+        id: userID
+    });
+});
+
+const createMessage = async (req, res, next) => {
+    const{message, agentId, date, time, sender, receiver} = req.body;
+
+    const newMessage = new Message({
+        message,
+        agentId,
+        date,
+        time,
+        sender,
+        receiver
+    });
+    try{
+        await newMessage.save();
+        socket.emit('createMessage', {
+            text: message,
+            toWhom: receiver,
+            id: sender
+        });
+    } catch (err) {
+        return next(err);
+    }
+    let chat;
+    try{
+        chat = await Message.find({agentId: agentId});
+    }catch (err) {
+        return next(err);
+    };
+    res.json({ messages: chat.map(message => message.toObject({ getters: true })) });
+};
+
+const getMessages = async (req, res, next) => {
+    let list;
+    try{
+        list = await Message.find({agentId: req.params.agentid});
+    } catch (err) {
+        return next(arr);
+    };
+    res.json({ messages: list.map(message => message.toObject({ getters: true })) });
+};
+
+const firstMessage = (id) => {
+    userID = id;
+    socket.emit('firstMessage', {
+      id: id,
+    });
+};
+
+socket.on('message', async (newMessage)=> {
+    const message = newMessage.text;
+    let agentId = newMessage.from;
+    const sender = agentId;
+    const receiver = newMessage.to;
+    let today = new Date().toLocaleDateString();
+    const timeVar = new Date();
+    let currentTime = timeVar.getHours() + ":" + timeVar.getMinutes();
+    const date = today;
+    const time = currentTime;
+
+    const messageToSave = new Message({
+        message,
+        agentId,
+        date,
+        time,
+        sender,
+        receiver
+    });
+    try{
+        await messageToSave.save();
+        try{
+            socket2.emit('ping', {
+                agentId: agentId
+            });
+        } catch(err) {
+            console.log(err);
+        }
+        
+    } catch (err) {
+        console.log("could not save incoming message:", err);
+    }
+});
+
+
+///
+const storeSocket = (attr) => {
+    socket2 = attr;
+    let index = null;
+    for(let i = 0; i< frontContacts.length; i++){
+        if(frontContacts[i].user == userID){
+            index = i;
+            break;
+        }
+    }
+    if(index !=  null){
+        frontContacts[index].socketID = attr.id;
+    }
+    else{
+        frontContacts.push({socketID: attr.id, user: userID});
+    }
+    console.log(frontContacts);
+}
+
+const storeFrontIO = (io) => {
+    frontIO = io;
+}
+
+
+const requestAgent = async (req, res, next) => {
+    const coordinatorPrivateNumber = req.body.coordinator;
+    const agentId = req.body.agent;
+    const whoAsk = req.body.whoAsk;
+    let user;
+    let agent;
+    try{
+        user = await User.find({privateNumber: coordinatorPrivateNumber});
+        agent = await Agent.find({tz: agentId});
+    } catch (err) {
+        console.log(err);
+    }
+    if(user != null){
+        if(agent != null){
+            if(agent[0].controlledBy == coordinatorPrivateNumber){
+                for(let i = 0; i< frontContacts.length; i++){
+                    if(frontContacts[i].user == coordinatorPrivateNumber){
+                        frontIO.to(frontContacts[i].socketID).emit('askForAgent', {agent: agentId, whoAsk: whoAsk});
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+socket.on("emergency", async(message) => {
+    console.log("got emergency")
+    let gotAgent;
+    let agent;
+    try{
+        gotAgent = await Agent.find({tz: message.agentId});
+    } catch (err) {
+        console.log(err);
+    }
+    try{
+        if(gotAgent != null){
+            agent = gotAgent[0].toObject({ getters: true });
+            for(let i = 0; i< frontContacts.length; i++){
+                if(frontContacts[i].user == agent.controlledBy && frontContacts[i].user){
+                    frontIO.to(frontContacts[i].socketID).emit('emergencyPing', {uri: message.uri, location: message.location, agentId: message.agentId});
+                    break;
+                }
+            }
+        }
+    }catch (err) {
+        console.log(err);
+    }
+})
+
+
+
+socket.on('agentLocation', async(message) => {
+    console.log("got location")
+    let gotAgent;
+    let agent;
+    try{
+        gotAgent = await Agent.find({tz: message.agentID});
+    } catch (err) {
+        console.log(err);
+    }
+    try{
+        if(gotAgent != null){
+            agent = gotAgent[0].toObject({ getters: true });
+            for(let i = 0; i< frontContacts.length; i++){
+                if(frontContacts[i].user == agent.controlledBy && frontContacts[i].user){
+                    frontIO.to(frontContacts[i].socketID).emit('gotLocation', {location: message.location});
+                    break;
+                }
+            }
+        }
+    }catch (err) {
+        console.log(err);
+    }
+});
+
+const setAppHours = (req, res, next) => {
+    const {agentId, startHour, endHour} = req.body;
+    try{
+        socket.emit("setAppHours", {
+            agentId: agentId,
+            startHour: startHour,
+            endHour: endHour
+        });
+    }   catch (err) {
+        console.log(err);
+    }
+}
+
+const requestLocation = (req, res, next) => {
+    const agentId = req.body.agentId;
+    const id = req.body.id;
+    try{
+        socket.emit("requestLocation", {
+            agentId: agentId,
+            id: id
+        });
+        res.json({success: true});
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const sendTimes = (req, res, next) => {
+    const {startTime, endTime, toWhom} = req.body;
+    try{
+        socket.emit("times", {
+            startTime: startTime,
+            endTime: endTime,
+            toWhom: toWhom
+        });
+        res.json({success: true});
+    } catch (err) {
+        console.log(err);
+        res.json({success: false});
+    }
+}
+
+exports.storeSocket= storeSocket;
+exports.storeFrontIO = storeFrontIO;
+///
+
+
+exports.createMessage = createMessage;
+exports.getMessages = getMessages;
+exports.firstMessage = firstMessage;
+exports.requestAgent = requestAgent;
+exports.requestLocation = requestLocation;
+exports.sendTimes = sendTimes;

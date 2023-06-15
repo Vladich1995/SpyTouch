@@ -1,0 +1,70 @@
+* {
+ margin:0px;
+ padding:0px;
+}
+
+.container{
+  height: 500px;
+  width: 400px;
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  transform: translate(-50%,-50%);
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 20px;
+}
+
+#userDiv, #numberDiv, #passDiv {
+  position: absolute;
+  left: 100px;
+}
+
+#userDiv{
+  top: 100px;
+}
+
+#numberDiv{
+  top: 150px;
+}
+
+#passDiv{
+  top: 200px;
+}
+
+#signin{
+  position: absolute;
+  top: 270px;
+  height: 30px;
+  width: 205px;
+  left: 100px;
+  background-color: black;
+  font-size: 15px;
+  text-align: center;
+  color: white;
+  cursor: pointer;
+}
+
+#create{
+  position: absolute;
+  top: 320px;
+  height: 30px;
+  width: 205px;
+  left: 100px;
+  background-color: black;
+  font-size: 15px;
+  text-align: center;
+  color: white;
+  cursor: pointer;
+}
+
+.input {
+  background-color: black;
+  font-size: 15px;
+  text-align: center;
+  color: white;
+  font-family: "Lucida Sans", "Lucida Sans";
+}
+
+
+

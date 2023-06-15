@@ -1,0 +1,19 @@
+const express = require('express');
+const agentsControllers = require('../controllers/agents-controllers');
+const router = express.Router();
+const { check } = require('express-validator');
+
+router.post("/", [check("fname").not().isEmpty(),
+check("lname").not().isEmpty(),
+check("age").not().isEmpty(),
+check("tz").not().isEmpty(),
+check("city").not().isEmpty(),
+check("address").not().isEmpty(),
+check("mission").not().isEmpty()], agentsControllers.createAgent);
+
+router.delete("/:agentTz", agentsControllers.deleteAgent);
+
+router.get("/:pnum", agentsControllers.getAgentsList);
+router.post("/transfer", agentsControllers.changeControl);
+
+module.exports = router;

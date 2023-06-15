@@ -1,0 +1,173 @@
+.agentCard{
+    position: relative;
+    height: 520px;
+    width: 290px;
+    top: 20px;
+    margin-left: 22px;
+    margin-top: 22px;
+    border-radius: 10px;
+    border-width: 0.5px;
+    border-color: black;
+    border-style: solid;
+    display: inline-block;
+    vertical-align: top;
+    background-color: white;
+}
+
+
+.agentCard:hover {
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+
+.agentCard:not(.selected):hover {
+    opacity: 1;
+    cursor: auto;
+}
+
+
+.image{
+    position: relative;
+    height: 250px;
+    width: 290px;
+    background-color: rgb(195, 159, 228);
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+.photo{
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+
+.title{
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-family: "Gill Sans", sans-serif;
+    top: 30px;
+}
+
+.agentId{
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    top: 30px;
+    font-family: "Gill Sans", sans-serif;
+    color: rgb(97, 95, 95);
+}
+
+
+
+.passport{
+    position: relative;
+    height: 200px;
+    width: 290px;
+    background-color: rgb(195, 164, 224);
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+.infoLabel{
+    position: relative;
+    font-size: 20px;
+    display: block;
+    margin-top: 5px;
+    text-align: center;
+    font-family: "Gill Sans", sans-serif;
+}
+
+.grey{
+    color: rgb(97, 95, 95);
+}
+
+.buttonsContainer {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 130px;
+    width: 100px;
+}
+
+.optionsButton{
+    position: absolute;
+    height: 30px;
+    width: 100px;
+    text-align: center;
+    cursor: pointer;
+    background-color: white;
+    border-style: none;
+    color: rgb(25, 116, 27);
+    
+    font-size: 17px;
+    font-family: "Gill Sans", sans-serif;
+}
+
+.singleButton{
+    position: relative;
+    height: 30px;
+    width: 100px;
+    margin-top: 5px;
+    background-color: white;
+    border-style: solid;
+    border-width: 0.8px;
+    border-color: rgb(25, 116, 27);
+    color: rgb(25, 116, 27);
+}
+
+.deleteDiv{
+    border-color: rgb(210, 3, 3);
+}
+
+.deleteButton{
+    color:rgb(210, 3, 3);
+}
+
+
+.timesForm{
+    position: absolute;
+    top: 200px;
+    height: 100px;
+    width: 290px;
+    background-color: blue;
+    text-align: center;
+    justify-content: space-between;
+}
+
+.inputArea{
+    height: 50px;
+    width: 290px;
+    margin-top: 20px;
+}
+
+.timeInput{
+    position: relative;
+    width: 50px;
+    text-align: center;
+}
+
+.buttonsArea{
+    position: relative;
+    height: 10px;
+    width: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 15px;
+}
+
+.setButtons{
+    width: 70px;
+    display: inline-block;
+}
+
+.first{
+    margin-right: 20px;
+}
+
+.second{
+    margin-left: 20px;
+}

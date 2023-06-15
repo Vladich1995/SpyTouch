@@ -1,0 +1,42 @@
+const mongoose = require('mongoose');
+const messageControllers = require("./messages-controllers");
+const User = require("../models/user");
+
+const createUser = async (req, res, next) => {
+    const {username, privateNumber, email, password} = req.body;
+    
+    const newUser = new User({
+        username,
+        privateNumber,
+        email,
+        password
+    });
+    try{
+        await newUser.save();
+        res.status(200).json({ success: true });
+    } catch (err) {
+        res.json({success: false});
+        return next(err);
+    }
+};
+
+const getUser = async (req, res, next) => {
+    const userName = req.params.uname;
+    const passWord = req.params.pass;
+    const privateNum = req.params.pnum;
+    let user;
+    try{
+        user = await User.findOne({username: userName, password: passWord, privateNumber: privateNum});
+        if(user != null){
+            messageControllers.firstMessage(user.privateNumber);
+            console.log("First message sent")
+            res.json({success: true, privateNumber: user.privateNumber});
+        }
+    } catch (err){
+        res.json({success: false});
+        return next(err);
+    };
+};
+
+exports.createUser = createUser;
+exports.getUser = getUser;

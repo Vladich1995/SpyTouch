@@ -1,0 +1,48 @@
+const User = require("../models/user");
+const messagesControllers = require("./messages-controllers");
+const ip = require("ip");
+const jwt = require('jsonwebtoken');
+
+const authCheck = async (req, res, next) => {
+    const userName = req.params.user;
+    const passWord = req.params.pass;
+    const iD = req.params.id;
+    let user;
+    try{
+        user = await User.findOne({username: userName, password: passWord, tz: iD}, {controlledBy: 1});
+        if(user != null){
+            const myIp = ip.address();
+            messagesControllers.firstMessage(iD);
+            const payload = {
+                username: userName,
+                password: passWord,
+                tz: iD,
+                controlledBy: user.controlledBy
+              };
+            const secretKey = "secretOrPrivateKey must have a value";
+            const token = jwt.sign(payload, secretKey);
+            res.json({exists: true, token: token});
+        }
+        else{
+            res.json({exists: false});
+        }
+    }catch (err) {
+        return next(err);
+    };
+};
+
+const getUser = async (req, res, next) => {
+    const id = req.params.uid;
+    let result;
+    try{
+        result = await User.findOne({tz: id});
+        res.json({user: result});
+    } catch (err) {
+        console.log("cant receive user");
+        return next(err);
+    };
+};
+
+
+exports.authCheck = authCheck;
+exports.getUser = getUser;

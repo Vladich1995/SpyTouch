@@ -1,0 +1,49 @@
+.container{
+  position: relative;
+  height: 470px;
+  width: 290px;
+  top: 30px;
+}
+
+.browse{
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  height:30px;
+  width:200px;
+  cursor: pointer;
+  top: 10px;
+}
+
+.buttonAdd{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 60px;
+  height:30px;
+  width:200px;
+  cursor: pointer;
+  
+}
+
+.cancel{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 100px;
+  height:30px;
+  width:200px;
+  cursor: pointer;
+  /* top: 50px; */
+}
+
+.input{
+  position: relative;
+  height:20px;
+  width:200px;
+  margin-top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+

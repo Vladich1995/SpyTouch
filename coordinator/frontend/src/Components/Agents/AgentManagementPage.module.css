@@ -1,0 +1,10 @@
+* {
+    margin:0px;
+    padding:0px;
+   }
+.page{
+    overflow: auto;
+    background: #F8F6F0;
+    height: 100vh;
+    max-width: 100%;
+}

@@ -1,0 +1,19 @@
+const express = require('express');
+const messagesControllers = require('../controllers/messages-controllers');
+const router = express.Router();
+const { check } = require('express-validator');
+
+router.post("/", [check("message").not().isEmpty(),
+check("agentId").not().isEmpty(),
+check("date").not().isEmpty(),
+check("time").not().isEmpty(),
+check("sender").not().isEmpty(),
+check("receiver").not().isEmpty()], messagesControllers.createMessage);
+
+router.get("/:agentid", messagesControllers.getMessages);
+
+router.post("/agent", messagesControllers.requestAgent);
+router.post("/location", messagesControllers.requestLocation);
+router.post("/times", messagesControllers.sendTimes);
+
+module.exports = router;

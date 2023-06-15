@@ -1,0 +1,21 @@
+.container {
+    height: 70px;
+    width: 450px;
+    position: absolute;
+    left: 50%;
+    top: 55%;
+    transform: translate(-50%,-50%);
+    background-color: rgb(152, 225, 235);
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 0.5px;
+    text-align: center;
+}
+
+.buttonsContainer {
+    height: 50px;
+    width: 450px;
+    text-align: center;
+    margin-top: 10px;
+    justify-content: space-between ;
+}

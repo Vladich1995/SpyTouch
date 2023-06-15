@@ -1,0 +1,39 @@
+* {
+ margin:0px;
+ padding:0px;
+}
+
+.header{
+  background-color: grey;
+  height: 40px;
+}
+
+.image{
+  background-image: url("../../../public/SpyTouch.bmp");
+  height: 40px;
+  width: 120px;
+}
+
+li{
+  display: inline-block;
+  position:relative;
+}
+
+li :hover{
+  color: white;
+}
+
+.about, .contact{
+  position:relative;
+  bottom: 15px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.about{
+  left: 1600px;
+}
+
+.contact{
+  left: 1650px;
+}

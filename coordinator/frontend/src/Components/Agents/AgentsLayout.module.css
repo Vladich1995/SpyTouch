@@ -1,0 +1,64 @@
+h1{
+  position: relative;
+  top: 200px;
+  left: 40%;
+}
+
+
+.noAgents{
+  position: absolute;
+  left: 770px;
+  top: 650px;
+}
+
+.selectionDiv{
+  position: relative;
+  top: 15px;
+  left: 22px;
+  height:30px;
+  width: 400px;
+}
+
+
+.selection{
+  position: absolute;
+  height: 25px;
+  width: 150px;
+  font-weight: bold;
+}
+
+.addCard{
+  position: relative;
+  height: 520px;
+  width: 290px;
+  top: 20px;
+  margin-left: 20px;
+  margin-top: 20px;
+  border-radius: 10px;
+  border-width: 0.5px;
+  border-color: black;
+  border-style: solid;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.optionsButton{
+  position: absolute;
+  display: block;
+  height: 60px;
+  width: 290px;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.first{
+  margin-top: -50px;
+}
+
+.last{
+  margin-top: 40px;
+}

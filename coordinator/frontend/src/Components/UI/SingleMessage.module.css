@@ -1,0 +1,62 @@
+.container{
+    position: relative;
+    height: 50px;
+    width: "100%";
+    margin-top: 20px;
+}
+
+.labelReceived{
+    position: relative;
+    color: red;
+    left: 10px;
+}
+
+.labelSent{
+    position: absolute;
+    right: 10px;
+    color: green;
+}
+
+.message{
+    height: 30px;
+    background-color: white;
+    width: auto;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.messageReceived{
+    position: absolute;
+    color: green;
+    left: 10px;
+}
+
+.messageSent{
+    position: absolute;
+    right: 10px;
+    top: 20px;
+}
+
+.textReceived{
+    color: red;
+    display: inline-block;
+    width: auto;
+}
+
+.textSent{
+    color: green;
+    display: inline-block;
+    width: auto;
+}
+
+.textSent:first-child{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.textReceived:first-child{
+    margin-left: 10px;
+    margin-right: 10px;
+}

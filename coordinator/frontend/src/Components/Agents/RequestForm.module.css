@@ -1,0 +1,38 @@
+.container{
+    position: absolute;
+    height: 500px;
+    width: 290px;
+}
+
+.input{
+    position: relative;
+    height:20px;
+    width:200px;
+    margin-top: 10px;
+    text-align: center;
+
+    top: 30%;
+    transform: translateY(-30%);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .buttonRequest{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    height:30px;
+    width:200px;
+    cursor: pointer;
+    margin-top: 200px;
+  }
+  
+  .cancel{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    height:30px;
+    width:200px;
+    cursor: pointer;
+    margin-top: 240px;
+  }

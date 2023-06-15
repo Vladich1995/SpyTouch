@@ -1,0 +1,81 @@
+const mongoose = require('mongoose');
+
+const Agent = require("../models/agent");
+
+const createAgent = async (req, res, next) => {
+    const {fname, lname, age, tz, city, address, mission, username, password, controlledBy, image} = req.body;
+
+    const newAgent = new Agent({
+        fname,
+        lname,
+        age,
+        tz,
+        city,
+        address,
+        mission,
+        username,
+        password,
+        controlledBy,
+        image
+    });
+    try{
+        await newAgent.save();
+    } catch (err) {
+        res.json({success: false});
+        return next(err);
+    }
+    let agentsList;
+    try{
+        agentsList = await Agent.find({controlledBy: controlledBy});
+        res.json({success: true, agents: agentsList.map(agent => agent.toObject({ getters: true })) });
+    }catch (err) {
+        res.json({success: false});
+        return next(err);
+    };
+};
+
+const deleteAgent = async (req, res, next) => {
+    const agentTz = req.params.agentTz;
+    let agent;
+    try{
+        agent = await Agent.findOne({tz: agentTz});
+        agent.remove();
+        res.status(200).json({success: true, message: 'Deleted agent.' });
+    }catch (err) {
+        res.json({success: false});
+        return next(err);
+    };
+};
+
+const getAgentsList = async (req, res, next) => {
+    const pnum = req.params.pnum;
+    let agentsList;
+    try{
+        agentsList = await Agent.find({controlledBy: pnum});
+        res.json({success: true, agents: agentsList.map(agent => agent.toObject({ getters: true })) });
+    }catch (err) {
+        res.json({success: false});
+        return next(err);
+    };
+
+};
+
+const changeControl = async (req, res, next) => {
+    const newController = req.body.user;
+    const agent = req.body.agent;
+    try{
+        let updated = await Agent.updateOne({tz: agent},{ $set: { controlledBy: newController } });
+        console.log(updated.controlledBy);
+        res.json({success: true});
+    } catch (err) {
+        console.log(err);
+        res.json({success: false});
+    }
+}
+
+
+exports.createAgent = createAgent;
+exports.deleteAgent = deleteAgent;
+exports.getAgentsList = getAgentsList;
+exports.changeControl = changeControl;
+

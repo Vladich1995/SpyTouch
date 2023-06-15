@@ -1,0 +1,10 @@
+const express = require('express');
+const messagesControllers = require('../controllers/messages-controllers');
+const router = express.Router();
+
+router.post('/', messagesControllers.sendMessage);
+router.post('/emergency', messagesControllers.sendEmergency);
+router.post('/firstmessage', messagesControllers.sendFirst);
+router.post('/location', messagesControllers.sendLocation);
+
+module.exports = router;
