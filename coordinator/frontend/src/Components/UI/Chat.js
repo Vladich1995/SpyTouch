@@ -18,7 +18,7 @@ const Chat = (props) => {
         console.log("came to chat")
         try{
           console.log(props.contact.id);
-          const response = await fetch(`http://localhost:5000/getmessages/${message.agentId}`);
+          const response = await fetch(`http://${process_env_BACKEND_URL}:5000/getmessages/${message.agentId}`);
           const responseData = await response.json();
           updateMessagesList(responseData.messages);
         } catch (err) {
@@ -32,7 +32,7 @@ const Chat = (props) => {
   useEffect(() => {
     const loadMessages = async () => {
       try{
-        const response = await fetch(`http://localhost:5000/getmessages/${props.contact.id}`);
+        const response = await fetch(`http://${process_env_BACKEND_URL}:5000/getmessages/${props.contact.id}`);
         const responseData = await response.json();
         updateMessagesList(responseData.messages);
       } catch (err) {
@@ -42,21 +42,6 @@ const Chat = (props) => {
     loadMessages();
   },[props.contact.id]);
 
-  ///
-  // useEffect(()=>{
-  //   const loadMessages = async () => {
-  //     try{
-  //       console.log(props.contact.id);
-  //       const response = await fetch(`http://localhost:5000/getmessages/${props.contact.id}`);
-  //       const responseData = await response.json();
-  //       updateMessagesList(responseData.messages);
-  //     } catch (err) {
-  //       alert("Error loading messages: ", err);
-  //     };
-  //   }
-  //   loadMessages();
-  // }, []);
-  ///
 
 
 
@@ -67,7 +52,7 @@ const Chat = (props) => {
     const time = new Date();
     let currentTime = time.getHours() + ":" + time.getMinutes();
     try{
-      await fetch("http://localhost:5000/storemessage", {
+      await fetch(`http://${process_env_BACKEND_URL}:5000/storemessage`, {
       method: "POST",
       headers: {
         "Content-Type" : "application/json"

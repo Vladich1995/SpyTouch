@@ -16,7 +16,7 @@ const RequestForm = (props) => {
     const submitHandler = async (event) => {
         event.preventDefault();
         try{
-            await fetch("http://localhost:5000/request/agent", {
+            await fetch(`http://${process_env_BACKEND_URL}:5000/request/agent`, {
             method: "POST",
             headers: {
               "Content-Type" : "application/json"

@@ -4,5 +4,6 @@ coordinator/backend/node_modules
 coordinator/frontend/node_modules
 MessagingServer/node_modules
 MessagingServer/nodemon
-coordinator/nodemon
-agentMobile/nodemon
+coordinator/backend/nodemon
+agentMobile/backend/nodemon
+coordinator/frontend/nodemon
