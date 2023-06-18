@@ -20,7 +20,7 @@ const server = http.createServer(app);
 
 let io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000"
+    origin: "https://spytouch-coordinator-frontend.onrender.com"
   },
 });
 
