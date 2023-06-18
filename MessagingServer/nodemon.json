@@ -1,0 +1,6 @@
+{
+    "env" : {
+        "DB_USER": "work",
+        "DB_PASSWORD": "21436587"
+    }
+}

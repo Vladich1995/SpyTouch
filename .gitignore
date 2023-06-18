@@ -3,3 +3,4 @@ agentMobile/frontend/node_modules
 coordinator/backend/node_modules
 coordinator/frontend/node_modules
 MessagingServer/node_modules
+MessagingServer/nodemon

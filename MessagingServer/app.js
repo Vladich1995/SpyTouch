@@ -356,7 +356,7 @@ const addSocketSettings = async (id, socketID, socketIP, online, secretKey) => {
  
 
 mongoose
-    .connect("mongodb+srv://work:21436587@cluster0.cq41rgq.mongodb.net/?retryWrites=true&w=majority")
+    .connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.cq41rgq.mongodb.net/?retryWrites=true&w=majority`)
     .then(() => {
       server.listen(port);
       console.log("Database is up and ready and server is running on port: ", port);
