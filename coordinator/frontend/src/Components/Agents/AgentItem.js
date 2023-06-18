@@ -34,7 +34,7 @@ const AgentItem = (props) => {
   const locateHandler = async (event) => {
     props.onLocate(props.id, props.fname, props.lname);
     try{
-      await fetch(`http://${process_env_BACKEND_URL}:5000/request/location`, {
+      await fetch(`http://${process.env.BACKEND_URL}:5000/request/location`, {
           method: "POST",
           headers: {
           "Content-Type" : "application/json"
@@ -63,7 +63,7 @@ const AgentItem = (props) => {
   const submitTimesHandler = async (e) => {
     e.preventDefault();
     try{
-      await fetch(`http://${process_env_BACKEND_URL}:5000/message/times`, {
+      await fetch(`http://${process.env.BACKEND_URL}:5000/message/times`, {
       method: "POST",
       headers: {
         "Content-Type" : "application/json"

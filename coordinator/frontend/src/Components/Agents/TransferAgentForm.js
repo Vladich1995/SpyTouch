@@ -4,7 +4,7 @@ const TransferAgentForm = (props) => {
     
     const transferAgentHandler = async () => {
       try{
-        await fetch(`http://${process_env_BACKEND_URL}:5000/agent/transfer`, {
+        await fetch(`http://${process.env.BACKEND_URL}:5000/agent/transfer`, {
             method: "POST",
             headers: {
               "Content-Type" : "application/json"

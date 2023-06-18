@@ -39,7 +39,7 @@ const AgentManagementPage = () => {
   
     useEffect(() => {
         if(socket == null){
-            const newSocket = io(`http://${process_env_BACKEND_URL}:3005`);
+            const newSocket = io(`http://${process.env.BACKEND_URL}:3005`);
             console.log("connected to backend");
             setSocket(newSocket);
             return () => {
@@ -80,7 +80,7 @@ const AgentManagementPage = () => {
       const sendRequest = async () => {
         try{
             if(location != ""){
-              const response = await fetch(`http://${process_env_BACKEND_URL}:5000/getagents/${location}`);
+              const response = await fetch(`http://${process.env.BACKEND_URL}:5000/getagents/${location}`);
               const responseData = await response.json();
               console.log(responseData);
               if(responseData.success == true){
@@ -109,7 +109,7 @@ const AgentManagementPage = () => {
     const addAgentHandler = async (newAgent) => {
       setFlagDownloaded(false);
       try{
-        await fetch(`http://${process_env_BACKEND_URL}:5000/addagent`, {
+        await fetch(`http://${process.env.BACKEND_URL}:5000/addagent`, {
           method: "POST",
           headers: {
             "Content-Type" : "application/json"
@@ -156,7 +156,7 @@ const AgentManagementPage = () => {
   
     const  deleteAgent = async () => {
       try{
-        await fetch(`http://${process_env_BACKEND_URL}:5000/deleteagent/${agentToDelete.id}`, {
+        await fetch(`http://${process.env.BACKEND_URL}:5000/deleteagent/${agentToDelete.id}`, {
         method: "DELETE",
         headers: {
           "Content-Type" : "application/json"
