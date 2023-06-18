@@ -39,7 +39,7 @@ const AgentManagementPage = () => {
   
     useEffect(() => {
         if(socket == null){
-            const newSocket = io(`http://${process.env.BACKEND_URL}:3005`);
+            const newSocket = io(`${process.env.REACT_APP_BACKEND_URL}:3005`);
             console.log("connected to backend");
             setSocket(newSocket);
             return () => {
@@ -80,7 +80,7 @@ const AgentManagementPage = () => {
       const sendRequest = async () => {
         try{
             if(location != ""){
-              const response = await fetch(`http://${process.env.BACKEND_URL}:5000/getagents/${location}`);
+              const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/getagents/${location}`);
               const responseData = await response.json();
               console.log(responseData);
               if(responseData.success == true){

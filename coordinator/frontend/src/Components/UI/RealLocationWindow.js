@@ -45,7 +45,7 @@ const RealLocationWindow = (props) => {
 
     const getLocation = async () => {
         try{
-            await fetch(`http://${process.env.BACKEND_URL}:5000/request/location`, {
+            await fetch(`${process.env.REACT_APP_BACKEND_URL}/request/location`, {
                 method: "POST",
                 headers: {
                 "Content-Type" : "application/json"

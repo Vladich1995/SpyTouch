@@ -39,7 +39,7 @@ const SignupForm = () => {
   const submitHandler = async (event) => {
     event.preventDefault();
     try{
-      await fetch(`http://${process.env.BACKEND_URL}:5000/adduser`, {
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/adduser`, {
       method: "POST",
       headers: {
         "Content-Type" : "application/json"

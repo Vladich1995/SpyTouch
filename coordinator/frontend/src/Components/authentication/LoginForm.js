@@ -25,7 +25,7 @@ const LoginForm = () => {
     event.preventDefault();
     
     try{
-      await fetch(`http://${process.env.BACKEND_URL}:5000/getuser/${userBox}/${passBox}/${privateNumberBox}`).then((response) => {
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/getuser/${userBox}/${passBox}/${privateNumberBox}`).then((response) => {
         return response.json();
       }).then((data) => {
         if(data.success == true){
