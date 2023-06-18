@@ -1,5 +1,6 @@
 const aes = require('./Utility/crypto');
 const crypto = require("crypto");
+const jwt = require('jsonwebtoken')
 const express=require('express');
 const socketIO=require('socket.io');
 const http=require('http')
@@ -15,7 +16,8 @@ const { SocketAddress } = require('net');
 
 
 let contacts;
-
+let bob = crypto.getDiffieHellman("modp15");
+bob.generateKeys('base64');
 
 
 
@@ -38,23 +40,39 @@ const establishSocketConnection = (list) => {
     //Every time the server resets and detects a connection, it checks who is the connected user by sending a ping to it's socket.id
     //and receiving the users id to match it to the existed one.
     console.log('New user connected: ' ,socket.id);
-    socket.emit('startEstablishConnection');
+    socket.emit('startEstablishConnection', {
+      publicKey: bob.getPublicKey(),
+    });
+
+
     socket.on('endEstablishConnection', (message)=>{
-      console.log(message.id);
-      let index = null;
-      for(let i = 0; i < contacts.length; i++){
-        if(contacts[i].id == message.id){
-          index = i;
-          break;
+      if(message.id){
+        bobSecret = bob.computeSecret(message.publicKey, null, "hex");
+        let index = null;
+        for(let i = 0; i < contacts.length; i++){
+          if(contacts[i].id == undefined && contacts[i].socketID == socket.id){
+            contacts[i].id = message.id;
+          } else {
+            if(contacts[i].id == message.id){
+              index = i;
+              break;
+            }
+          }
         }
-      }
-      if(index != null){
-        contacts[index].socketID = socket.id;
-        contacts[index].socketIP = socket.request.connection.remoteAddress;
-        contacts[index].online = true;
-        updateSocketSettings(message.id, socket.id, socket.request.connection.remoteAddress);
-        console.log("CONTACTS AFTER SERVER RESET:", contacts)
-        fetchQueueMessages(message.id, socket.id);
+        if(index != null){
+          contacts[index].socketID = socket.id;
+          contacts[index].socketIP = socket.request.connection.remoteAddress;
+          contacts[index].online = true;
+          contacts[index].secretKey = bobSecret;
+          updateSocketSettings(message.id, socket.id, socket.request.connection.remoteAddress, bobSecret);
+          console.log("CONTACTS AFTER SERVER RESET:", contacts)
+          fetchQueueMessages(message.id, socket.id);
+        } else {
+          contacts.push({id: message.id, socketID: socket.id, socketIP: socket.request.connection.remoteAddress, online: true, secretKey: bobSecret});
+          addSocketSettings(message.id, socket.id, socket.request.connection.remoteAddress, true, bobSecret);
+          console.log("CONTACTS AFTER FIRST MESSAGE:", contacts)
+          fetchQueueMessages(message.id, socket.id);
+        }
       }
     })
     //////////////////////////////////////////
@@ -63,25 +81,9 @@ const establishSocketConnection = (list) => {
     socket.on('firstMessage', (newMessage)=>{
       //Every user sends a message every time he logs in his account. The message includes his id to match and store it
       //with its corresponding socket.id
-      let index = null;
-      for(let i = 0; i < contacts.length; i++){
-        if(contacts[i].id == newMessage.id){
-          index = i;
-          break;
-        }
-      }
-      if(index != null){
-        contacts[index].socketID = socket.id;
-        contacts[index].socketIP = socket.request.connection.remoteAddress;
-        contacts[index].online = true;
-        updateSocketSettings(newMessage.id, socket.id, socket.request.connection.remoteAddress)
-      }
-      else{
-        contacts.push({id: newMessage.id, socketID: socket.id, socketIP: socket.request.connection.remoteAddress, online: true});
-        addSocketSettings(newMessage.id, socket.id, socket.request.connection.remoteAddress, true);
-      }
-      console.log("CONTACTS AFTER FIRST MESSAGE:", contacts)
-      fetchQueueMessages(newMessage.id, socket.id);
+      socket.emit('startEstablishConnection', {
+        publicKey: bob.getPublicKey(),
+      });
   })
   ////////////////////////////////////////////
 
@@ -90,17 +92,22 @@ const establishSocketConnection = (list) => {
           let sendTo = newMessage.toWhom;
           console.log(sendTo);
           let index;
+          let secretKey;
+          let token;
+          let addressSecretKey;
           let senderID = newMessage.id;
           for(let i = 0; i < contacts.length; i++){
             try{
               if(contacts[i].id == sendTo){
                 index = i;
+                addressSecretKey = contacts[i].secretKey;
               }
               if(contacts[i].id == senderID){
                 contacts[i].socketID = socket.id;
                 contacts[i].socketIP = socket.request.connection.remoteAddress;
                 contacts[i].online = true;
                 updateSocketSettings(newMessage.id, socket.id, socket.request.connection.remoteAddress)
+                secretKey = contacts[i].secretKey;
               }
             } catch (err) {
               console.log("error: ", err);
@@ -108,8 +115,15 @@ const establishSocketConnection = (list) => {
           }
           try{
             if(contacts[index].online == true){
+              const decodedMessage = jwt.verify(newMessage.token, secretKey);
+              if (decodedMessage === newMessage.text) {
+                console.log('Message received:', newMessage.text);
+                token = jwt.sign(decodedMessage, addressSecretKey);
+              } else {
+                console.log('Message has been tampered with!');
+              }
               console.log(senderID);
-              io.to(contacts[index].socketID).emit('message', {text: newMessage.text, from: senderID, to: newMessage.toWhom});
+              io.to(contacts[index].socketID).emit('message', {text: decodedMessage, token, from: senderID, to: newMessage.toWhom});
               console.log("message: ", newMessage.text, "is sent to: ", contacts[index].socketID);
             }
             else{
@@ -165,7 +179,7 @@ const establishSocketConnection = (list) => {
       }
       if(contacts[index].online == true){
         console.log("hereeee")
-        io.to(contacts[index].socketID).emit('location', {whoAsk: senderID});
+        io.to(contacts[index].socketID).emit('location', {whoAsk: senderID, sendTo: sendTo});
       }
       else{
             //if not online, store messages in queue
@@ -209,7 +223,7 @@ const establishSocketConnection = (list) => {
       }
       try{
         if(contacts[index].online == true){
-          io.to(contacts[index].socketID).emit('setTimes', {startTime: message.startTime, endTime: message.endTime});
+          io.to(contacts[index].socketID).emit('setTimes', {startTime: message.startTime, endTime: message.endTime, sendTo: sendTo});
         }
         else{
               //if not online, store messages in queue
@@ -297,12 +311,11 @@ const establishSocketConnection = (list) => {
       for(let i = 0; i < contacts.length; i++){
         if(contacts[i].socketID == socket.id){
           index = i;
-          break;
+          if(contacts[index] != null){
+            let updated = await Contact.updateOne({id: contacts[index].id},{ $set: { online: false } });
+            contacts[index].online = false;
+          }
         }
-      }
-      if(contacts[index] != null){
-        let updated = await Contact.updateOne({id: contacts[index].id},{ $set: { online: false } });
-        contacts[index].online = false;
       }
       console.log(contacts);
     });
@@ -312,20 +325,27 @@ const establishSocketConnection = (list) => {
 
 
 
-const updateSocketSettings = async (contactID, socketID, socketIP) => {
+const updateSocketSettings = async (contactID, socketID, socketIP, secretKey) => {
   try{
-    let updated = await Contact.updateOne({id: contactID},{ $set: { socketID: socketID, socketIP: socketIP, online: true} });
+    let updated;
+    if(secretKey != null){
+      updated = await Contact.updateOne({id: contactID},{ $set: { socketID: socketID, socketIP: socketIP, online: true, secretKey: secretKey} });
+    }
+    else{
+      updated = await Contact.updateOne({id: contactID},{ $set: { socketID: socketID, socketIP: socketIP, online: true} });
+    }
   } catch (err) {
     console.log(err);
   }
 }
 
-const addSocketSettings = async (id, socketID, socketIP, online) => {
+const addSocketSettings = async (id, socketID, socketIP, online, secretKey) => {
   const newContact = new Contact({
     id,
     socketID,
     socketIP,
-    online
+    online,
+    secretKey: secretKey
   });
   try{
       await newContact.save();

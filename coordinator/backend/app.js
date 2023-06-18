@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const crypto = require('crypto');
 const agentsRoutes = require("./routes/agents-routes");
 const usersRoutes = require("./routes/users-routes");
 const messagesRoutes = require("./routes/messages-routes");
@@ -22,6 +23,10 @@ let io = new Server(server, {
     origin: "http://localhost:3000"
   },
 });
+
+let alice = crypto.getDiffieHellman("modp15");
+alice.generateKeys('base64');
+messagesControllers.storeAlice(alice);
 
 
 app.use(bodyParser.json({limit: '50mb'}));
@@ -57,7 +62,6 @@ mongoose
     .then(() => {
         app.listen(5000);
         ///
-
         server.listen(3005, () => {
           messagesControllers.storeFrontIO(io);
           io.on("connection", (socket) => {

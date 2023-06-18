@@ -22,6 +22,7 @@ const TransferAgentForm = (props) => {
                 break;
               }
             }
+            props.onCancel();
           });
       } catch (err) {
         alert("Error transfering agent: ", err);

@@ -18,7 +18,7 @@ const Stack = createStackNavigator();
 
 export default function App () {
   const [calc, setCalc] = useState(true);
-  const [startTime, setStartTime] = useState("19:00");
+  const [startTime, setStartTime] = useState("06:00");
   const [endTime, setEndTime] = useState("20:55");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -26,6 +26,7 @@ export default function App () {
   const [controlledBy, setControlledBy] = useState("");
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [socket, setSocket] = useState(null);
+  const [firstSent, setFirstSent] = useState(false);
 
   useEffect(()=>{
     let currentTime = new Date().toLocaleTimeString('en-US', { hour12: false, hour: "numeric", minute: "numeric"});
@@ -65,7 +66,7 @@ export default function App () {
         console.error(e);
       }
     };
-    removeToken();
+    //removeToken();
 
     const getToken = async () => {
       try {
@@ -98,6 +99,10 @@ export default function App () {
                 return response.json();
             }).then((data) => {
                 console.log(data.success);
+                setFirstSent(true);
+                newSocket.emit('storeID', {
+                  id:decodedToken.tz
+                });
             });
         } catch (err) {
             console.log(err);
@@ -152,12 +157,12 @@ export default function App () {
         <Stack.Navigator>
         {(isSignedIn && !calc) ? (
           <>
-            <Stack.Screen name="chat" options={{headerShown: false,}} component={Chat} initialParams={{id: tz, socket: socket, setTimesFunc: setTimesHandler, afterAuth: false}} />
+            <Stack.Screen name="chat" options={{headerShown: false,}} component={Chat} initialParams={{id: tz, socket: socket, setTimesFunc: setTimesHandler}} />
           </>
         ) : (
           <>
             <Stack.Screen name="auth" options={{headerShown: false,}} component={Auth} initialParams={{setSignedFunc: setSignedInHandler, setTzControlFunc: setTzControl}} />
-            <Stack.Screen name="chat" options={{headerShown: false,}} component={Chat} initialParams={{id: tz, socket: socket, setTimesFunc: setTimesHandler, afterAuth: true}} />
+            <Stack.Screen name="chat" options={{headerShown: false,}} component={Chat} initialParams={{id: tz, socket: socket, setTimesFunc: setTimesHandler, firstSent: firstSent}} />
           </>
         )}
         </Stack.Navigator>

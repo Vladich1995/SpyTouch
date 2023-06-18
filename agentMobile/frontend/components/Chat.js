@@ -20,10 +20,9 @@ function Chat ({route}) {
                     return response.json();
                 }).then((data) => {
                     setUser(data.user);
-                    console.log("user set");
-                    if(route.params.afterAuth == true){
-                        sendFirstMessage(data.user.tz);
-                    }
+                    console.log("user set: ", route.params.id);
+                    //sendFirstMessage(data.user.tz);
+
                 })
             } catch (err){
                 console.log("errorrr:",err);
@@ -33,25 +32,25 @@ function Chat ({route}) {
         getUserParams();
     }, []);
 
-    const sendFirstMessage = async (tz) => {
-        try{
-            await fetch("http://192.168.1.20:8000/send/firstmessage", {
-                method: "POST",
-                headers: {
-                "Content-Type" : "application/json"
-                },
-                body: JSON.stringify({
-                    id: tz
-                })
-            }).then((response) => {
-                return response.json();
-            }).then((data) => {
-                console.log(data.success);
-            });
-        } catch (err) {
-            console.log(err);
-        }
-    }
+    // const sendFirstMessage = async (tz) => {
+    //     try{
+    //         await fetch("http://192.168.1.20:8000/send/firstmessage", {
+    //             method: "POST",
+    //             headers: {
+    //             "Content-Type" : "application/json"
+    //             },
+    //             body: JSON.stringify({
+    //                 id: tz
+    //             })
+    //         }).then((response) => {
+    //             return response.json();
+    //         }).then((data) => {
+    //             console.log(data.success);
+    //         });
+    //     } catch (err) {
+    //         console.log(err);
+    //     }
+    // }
 
 
     

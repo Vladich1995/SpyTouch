@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 mongoose.set('strictQuery', true);
+const crypto = require('crypto');
 const bodyParser = require("body-parser");
 const messagesRoutes = require("./routes/messages-routes");
 const authRoutes = require("./routes/auth-routes");
@@ -22,7 +23,9 @@ let io = new Server(server, {
   },
 });
 
-
+let alice = crypto.getDiffieHellman("modp15");
+alice.generateKeys('base64');
+messagesControllers.storeAlice(alice);
 
 ///
 
@@ -50,9 +53,14 @@ mongoose
           console.log("listening on port 8000");
           ///
           server.listen(3007, () => {
+            messagesControllers.storeFrontIO(io);
             io.on("connection", (socket) => {
               console.log(`User Connected: ${socket.id}`);
               messagesControllers.storeSocket(socket);
+              socket.on('storeID', (message)=>{
+                console.log("got storeID ping");
+                messagesControllers.storeID(socket.id, message.id);
+              });
               socket.on("disconnect", () => {
                 console.log("User Disconnected from backend", socket.id);
                 messagesControllers.notifyDC(socket.id);

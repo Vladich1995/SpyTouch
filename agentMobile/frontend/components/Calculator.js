@@ -19,6 +19,29 @@ function Calculator ({id, controlledBy, socket, setTimesFunc}) {
   
     const [location, setLocation] = useState(null);
 
+    // useEffect(()=>{
+    //     const sendFirstMessage = async () => {
+    //         try{
+    //             await fetch("http://192.168.1.20:8000/send/firstmessage", {
+    //                 method: "POST",
+    //                 headers: {
+    //                 "Content-Type" : "application/json"
+    //                 },
+    //                 body: JSON.stringify({
+    //                     id: id
+    //                 })
+    //             }).then((response) => {
+    //                 return response.json();
+    //             }).then((data) => {
+    //                 console.log(data.success);
+    //             });
+    //         } catch (err) {
+    //             console.log(err);
+    //         }
+    //     }
+    //     sendFirstMessage();
+    // }, [])
+
 
     const keys = [
         { key: 'C', label: 'C' },
@@ -109,6 +132,11 @@ function Calculator ({id, controlledBy, socket, setTimesFunc}) {
         }
     }
 
+    useEffect(()=>{
+        getLocation();
+        setEmergency(false);
+    }, [uri])
+
    
 
 
@@ -124,8 +152,6 @@ function Calculator ({id, controlledBy, socket, setTimesFunc}) {
     useEffect(()=>{
         if(emergency == true){
             startRecording();
-            getLocation();
-            setEmergency(false);
         }
     }, [emergency]);
 
@@ -156,7 +182,7 @@ function Calculator ({id, controlledBy, socket, setTimesFunc}) {
             }
         }
         sendData();
-    }, [uri,location]);
+    }, [location]);
 
     function calculateHandler (value) {
         setPressedEqual(false);

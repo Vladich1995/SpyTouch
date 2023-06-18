@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+const crypto = require('crypto');
+const aes = require('../Utility/crypto');
+const jwt = require('jsonwebtoken')
 const io = require("socket.io-client");
 var socket=io("http://localhost:3001/")
 const Message = require("../models/message");
@@ -10,13 +13,19 @@ let frontIO;
 let socket2;
 let userID;
 let frontContacts = [];
+let alice;
+let aliceSecret = null;
 
 
 
-socket.on('startEstablishConnection', ()=>{
+socket.on('startEstablishConnection', (message)=>{
     console.log("establish connection request")
+    if(aliceSecret == null){
+        aliceSecret = alice.computeSecret(message.publicKey, null, "hex");
+    }
     console.log(userID)
     socket.emit('endEstablishConnection', {
+        publicKey: alice.getPublicKey(),
         id: userID
     });
 });
@@ -34,8 +43,10 @@ const createMessage = async (req, res, next) => {
     });
     try{
         await newMessage.save();
+        const token = jwt.sign(message, aliceSecret);
         socket.emit('createMessage', {
             text: message,
+            token: token,
             toWhom: receiver,
             id: sender
         });
@@ -64,42 +75,61 @@ const getMessages = async (req, res, next) => {
 const firstMessage = (id) => {
     userID = id;
     socket.emit('firstMessage', {
-      id: id,
+        id: id,
     });
 };
 
-socket.on('message', async (newMessage)=> {
-    const message = newMessage.text;
-    let agentId = newMessage.from;
-    const sender = agentId;
-    const receiver = newMessage.to;
-    let today = new Date().toLocaleDateString();
-    const timeVar = new Date();
-    let currentTime = timeVar.getHours() + ":" + timeVar.getMinutes();
-    const date = today;
-    const time = currentTime;
 
-    const messageToSave = new Message({
-        message,
-        agentId,
-        date,
-        time,
-        sender,
-        receiver
-    });
-    try{
-        await messageToSave.save();
+
+socket.on('message', async (newMessage)=> {
+    const decodedMessage = jwt.verify(newMessage.token, aliceSecret);
+    // Verify that the decoded message matches the received message
+    if (decodedMessage === newMessage.text) {
+        console.log('Message received:', newMessage.text);
+        const message = newMessage.text;
+        let agentId = newMessage.from;
+        const sender = agentId;
+        const receiver = newMessage.to;
+        let today = new Date().toLocaleDateString();
+        const timeVar = new Date();
+        let currentTime = timeVar.getHours() + ":" + timeVar.getMinutes();
+        const date = today;
+        const time = currentTime;
+
+        const messageToSave = new Message({
+            message,
+            agentId,
+            date,
+            time,
+            sender,
+            receiver
+        });
         try{
-            socket2.emit('ping', {
-                agentId: agentId
-            });
-        } catch(err) {
-            console.log(err);
+            await messageToSave.save();
+            let index;
+            for(let i = 0; i < frontContacts.length; i++){
+                if(frontContacts[i].user == newMessage.to){
+                    index = i;
+                    break;
+                }
+            }
+            if(index){
+                try{
+                    frontIO.to(frontContacts[index].socketID).emit('ping', {
+                        agentId: agentId
+                    });
+                } catch(err) {
+                    console.log(err);
+                }
+            }
+            
+        } catch (err) {
+            console.log("could not save incoming message:", err);
         }
-        
-    } catch (err) {
-        console.log("could not save incoming message:", err);
+    } else {
+      console.log('Message has been tampered with!');
     }
+    
 });
 
 
@@ -124,6 +154,10 @@ const storeSocket = (attr) => {
 
 const storeFrontIO = (io) => {
     frontIO = io;
+}
+
+const storeAlice = (al) => {
+    alice = al;
 }
 
 
@@ -252,6 +286,7 @@ const sendTimes = (req, res, next) => {
 exports.storeSocket= storeSocket;
 exports.storeFrontIO = storeFrontIO;
 exports.notifyDC = notifyDC;
+exports.storeAlice = storeAlice;
 ///
 
 

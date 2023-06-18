@@ -34,22 +34,28 @@ function Auth ({navigation, route}) {
         } catch (e) {
           console.error(e);
         }
-        try{
-            await fetch("http://192.168.1.20:8000/send/firstmessage", {
-                method: "POST",
-                headers: {
-                "Content-Type" : "application/json"
-                },
-                body: JSON.stringify({
-                    id: idNumberBox
-                })
-            }).then((response) => {
-                return response.json();
-            }).then((data) => {
-                console.log(data.success);
-            });
-        } catch (err) {
-            console.log(err);
+        console.log(route.params.firstSent)
+        if(route.params.firstSent == false){
+            try{
+                await fetch("http://192.168.1.20:8000/send/firstmessage", {
+                    method: "POST",
+                    headers: {
+                    "Content-Type" : "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: idNumberBox
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((data) => {
+                    console.log(data.success);
+                    socket.emit('storeID', {
+                        id:decodedToken.tz
+                    });
+                });
+            } catch (err) {
+                console.log(err);
+            }
         }
     };
 

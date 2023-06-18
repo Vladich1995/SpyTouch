@@ -1,4 +1,7 @@
 const io = require("socket.io-client");
+const crypto = require('crypto');
+const aes = require('../Utility/crypto');
+const jwt = require('jsonwebtoken')
 var socket=io("http://localhost:3001/");
 const fs = require('fs');
 const CloudConvert = require('cloudconvert');
@@ -7,13 +10,21 @@ const axios = require('axios');
 const cloudConvert = new CloudConvert('eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiNmQ0YzA1ZDgxODE2OGU4MWQ2NzhlNTIxMTQ0ZmNkMDM3ODJlNjE1N2U2MWY2NzY1NjdkMDhmYzhlZmEzNDVkZGY5ZjliZGZmNDhjM2Y5NDQiLCJpYXQiOjE2ODY1OTQwMjkuMDQ5MDMsIm5iZiI6MTY4NjU5NDAyOS4wNDkwMzEsImV4cCI6NDg0MjI2NzYyOS4wNDMxLCJzdWIiOiI0ODc5NTE1NCIsInNjb3BlcyI6WyJ0YXNrLnJlYWQiLCJ0YXNrLndyaXRlIl19.Dbz0nBI4xfUsOL8-fDjTziMB8JJbA4imu3woP4mNwl-jOtvJAzskyT_7MkbW17Q-k2DadjIwUFDRw8xaJvTI6bqgb9go8YbcfMxFB7ka3WEEgAesitOzNmxwWi8fUB9Pv54u2w6pvWnmkaO2OucS1dNMAOLynYfMJJXelPL3qEHm1sh3t5ABRAsm3xvrokcS3P1UhOUNt2aG3RR80_X-L7IJ22mxRU_jVllq-Uq9gdXVzLFsd9tIcJUJxgd-7FkFRRb4dKH_qvdJ0_e7GPx3jUQApnTrAoF8zwawTjYfRfZiQKqgCzGXkPaJ3bdY32YOWmiYwP2e8Sll8abf5UDrcX9f39c3L0m7Gj3q7LPIVafiCblzhPiXQKKu6o4pjcf-7molWVEXGOA-QAhufc-l0_E2l09LB_sgGDrfbqQIxTuTSNrABgSDUAr4LCSUfjcakuImGhWcYGyF9X8mGKWU_Yg40YBpDD61el7pP4P_6E66stzlei9EmgBwqdJh-imRKmSaT-htbUslJHDoyWpRuIhNcSx7eoDz4jUQk24o4ovBL0vmztmo7ymaeG5UcSy_e7H_ULeZkU2GsEzCtxuapo62Hd3OY9XadWXaac7GIiZQLtnZX3rTx3CgswSQ0TC0qjKsDO1b6QbSSdPJE_t62WajP64yB2lW0THju6HPIlA');
 
 let socket2;
-
+let frontIO;
+let frontContacts = [];
 let userID;
+let alice;
+let aliceSecret;
 
 
-socket.on('startEstablishConnection', ()=>{
+socket.on('startEstablishConnection', (message)=>{
   console.log("establish connection request")
+  if(aliceSecret == null){
+      aliceSecret = alice.computeSecret(message.publicKey, null, "hex");
+  }
+  console.log(userID)
   socket.emit('endEstablishConnection', {
+      publicKey: alice.getPublicKey(),
       id: userID
   });
 });
@@ -21,8 +32,10 @@ socket.on('startEstablishConnection', ()=>{
 
 const sendMessage = (req, res, next) => {
   try{
+    const token = jwt.sign(req.body.message, aliceSecret);
     socket.emit('createMessage', {
       text: req.body.message,
+      token: token,
       toWhom: req.body.toWhom,
       id: req.body.id
     });
@@ -34,7 +47,6 @@ const sendMessage = (req, res, next) => {
 
 const firstMessage = (id) => {  
       // emits message from user side
-      console.log("Sending first message")
       userID = id;
       try{
         socket.emit('firstMessage', {
@@ -46,16 +58,56 @@ const firstMessage = (id) => {
 };
 
 socket.on('message', (newMessage)=>{
-  try{
-    socket2.emit('message', newMessage.text);
-  } catch (err) {
-    console.log( err);
-  }
+    const decodedMessage = jwt.verify(newMessage.token, aliceSecret);
+    // Verify that the decoded message matches the received message
+    if (decodedMessage === newMessage.text) {
+      console.log('Message received:', newMessage.text);
+      try{
+        let index;
+        for(let i = 0; i < frontContacts.length; i++){
+          if(frontContacts[i].user == newMessage.to){
+            index = i;
+            break;
+          }
+        }
+        if(index != null){
+          console.log(frontContacts[index].socketID)
+          frontIO.to(frontContacts[index].socketID).emit('message', newMessage.text);
+        }
+      } catch (err) {
+        console.log( err);
+      }
+    } else {
+      console.log('Message has been tampered with!');
+    }
 });
 
 const storeSocket = (attr) => {
   socket2 = attr;
-};
+}
+
+const storeID = (socketID, user) => {
+  let index = null;
+  for(let i = 0; i< frontContacts.length; i++){
+      if(frontContacts[i].user == user){
+          index = i;
+          break;
+      }
+  }
+  if(index !=  null){
+      frontContacts[index].socketID = socketID;
+  }
+  else{
+      frontContacts.push({socketID: socketID, user: user});
+  }
+  console.log(frontContacts);
+}
+
+
+
+const storeAlice = (al) => {
+  alice = al;
+}
 
 // const sendEmergency = (req, res, next) => {
 //   const { uri, location, id, controlledBy } = req.body;
@@ -164,6 +216,7 @@ const sendEmergency = async (req, res, next) => {
 
 const sendFirst = (req, res, next) => {
   try{
+    console.log("Sending first message")
     firstMessage(req.body.id);
     res.json({success: true});
   } catch (err) {
@@ -173,16 +226,43 @@ const sendFirst = (req, res, next) => {
 }
 
 socket.on('location', (message)=>{
-  console.log("here1")
-  socket2.emit('realLocation', {whoAsk: message.whoAsk})
+  try{
+    let index;
+    for(let i = 0; i < frontContacts.length; i++){
+      if(frontContacts[i].user == message.sendTo){
+        index = i;
+        break;
+      }
+    }
+    if(index != null){
+      console.log(frontContacts[index].socketID)
+      frontIO.to(frontContacts[index].socketID).emit('realLocation', {whoAsk: message.whoAsk})
+    }
+  } catch (err) {
+    console.log( err);
+  }
 });
 
 socket.on("setTimes", (message)=>{
   console.log(message);
-  socket2.emit("setAgentTimes", {
-    startTime: message.startTime,
-    endTime: message.endTime
-  })
+  try{
+    let index;
+    for(let i = 0; i < frontContacts.length; i++){
+      if(frontContacts[i].user == message.sendTo){
+        index = i;
+        break;
+      }
+    }
+    if(index != null){
+      console.log(frontContacts[index].socketID)
+      frontIO.to(frontContacts[index].socketID).emit("setAgentTimes", {
+        startTime: message.startTime,
+        endTime: message.endTime
+      })
+    }
+  } catch (err) {
+    console.log( err);
+  }
 });
 
 const sendLocation = (req, res, next) => {
@@ -207,6 +287,10 @@ const notifyDC = (socketid) => {
   }
 }
 
+const storeFrontIO = (io) => {
+  frontIO = io;
+}
+
 
 exports.sendMessage = sendMessage;
 exports.firstMessage = firstMessage;
@@ -215,3 +299,6 @@ exports.sendEmergency = sendEmergency;
 exports.sendFirst = sendFirst;
 exports.sendLocation = sendLocation;
 exports.notifyDC = notifyDC;
+exports.storeAlice = storeAlice;
+exports.storeFrontIO = storeFrontIO;
+exports.storeID = storeID;
