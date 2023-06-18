@@ -1,5 +1,5 @@
 {
     "env": {
-        "BACKEND_URL": "https://spytouch-coordinator-backend.onrender.com"
+        "BACKEND_URL": "coordinatorback.firebaseapp.com"
     }
 }

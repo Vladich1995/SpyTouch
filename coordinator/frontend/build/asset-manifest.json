@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/static/css/main.c40ca5aa.css",
+    "main.js": "/static/js/main.a780d6fd.js",
+    "static/media/SpyTouch.bmp": "/static/media/SpyTouch.95851055a7a6968bff3a.bmp",
+    "static/media/pngegg.png": "/static/media/pngegg.4a41852262cf6c43e19c.png",
+    "index.html": "/index.html",
+    "main.c40ca5aa.css.map": "/static/css/main.c40ca5aa.css.map",
+    "main.a780d6fd.js.map": "/static/js/main.a780d6fd.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.c40ca5aa.css",
+    "static/js/main.a780d6fd.js"
+  ]
+}
