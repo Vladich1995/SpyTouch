@@ -39,7 +39,7 @@ const AgentManagementPage = () => {
   
     useEffect(() => {
         if(socket == null){
-            const newSocket = io(`${process.env.REACT_APP_BACKEND_URL}:3005`);
+            const newSocket = io(`${process.env.REACT_APP_BACKEND_URL}`);
             console.log("connected to backend");
             setSocket(newSocket);
             return () => {
