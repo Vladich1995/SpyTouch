@@ -12,6 +12,7 @@ import io from "socket.io-client";
 import Auth from './components/Auth';
 import Chat from './components/Chat';
 import Calculator from './components/Calculator';
+import {BACKEND_URL} from '@env';
 
 
 const Stack = createStackNavigator();
@@ -34,7 +35,7 @@ export default function App () {
       setCalc(false);
     }
 
-    const newSocket = io.connect("http://192.168.1.20:3007");
+    const newSocket = io.connect(`${BACKEND_URL}`);
     setSocket(newSocket);
 
     async function prepareRecording() {
@@ -87,7 +88,7 @@ export default function App () {
           setTz(decodedToken.tz);
           setControlledBy(decodedToken.controlledBy);
           try{
-            await fetch("http://192.168.1.20:8000/send/firstmessage", {
+            await fetch(`${BACKEND_URL}/send/firstmessage`, {
                 method: "POST",
                 headers: {
                 "Content-Type" : "application/json"

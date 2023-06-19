@@ -2,6 +2,7 @@ import {View, TextInput, Image, StyleSheet, Button, KeyboardAvoidingView, Platfo
 import { useState } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import jwtDecode from 'jwt-decode';
+import {BACKEND_URL} from '@env';
 
 function Auth ({navigation, route}) {
     LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state', ]);
@@ -12,7 +13,7 @@ function Auth ({navigation, route}) {
 
     const submitHandler = async () => {
         try{
-            await fetch(`http://192.168.1.20:8000/auth/${userBox}/${passBox}/${idNumberBox}`).then((response) => {
+            await fetch(`${BACKEND_URL}/auth/${userBox}/${passBox}/${idNumberBox}`).then((response) => {
                 return response.json();
             }).then((data) => {
                 if(data.exists == true){
@@ -37,7 +38,7 @@ function Auth ({navigation, route}) {
         console.log(route.params.firstSent)
         if(route.params.firstSent == false){
             try{
-                await fetch("http://192.168.1.20:8000/send/firstmessage", {
+                await fetch(`${BACKEND_URL}/send/firstmessage`, {
                     method: "POST",
                     headers: {
                     "Content-Type" : "application/json"

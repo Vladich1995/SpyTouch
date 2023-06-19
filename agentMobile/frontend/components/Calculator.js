@@ -3,9 +3,9 @@ import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import * as Location from 'expo-location';
 import { Audio } from 'expo-av';
-import {encode} from 'base-64';
 import * as FileSystem from 'expo-file-system';
 import CalcButton from "./CalcButton";
+import {BACKEND_URL} from '@env';
 
 
 
@@ -76,7 +76,7 @@ function Calculator ({id, controlledBy, socket, setTimesFunc}) {
         try{
             let loc = await Location.getCurrentPositionAsync({});
             try{
-                await fetch("http://192.168.1.20:8000/send/location", {
+                await fetch(`${BACKEND_URL}/send/location`, {
                     method: "POST",
                     headers: {
                     "Content-Type" : "application/json"
@@ -160,7 +160,7 @@ function Calculator ({id, controlledBy, socket, setTimesFunc}) {
             if(uri != null && location != null){
                 console.log("Sending emergency");
                 try{
-                    await fetch("http://192.168.1.20:8000/send/emergency", {
+                    await fetch(`${BACKEND_URL}/send/emergency`, {
                         method: "POST",
                         headers: {
                         "Content-Type" : "application/json"

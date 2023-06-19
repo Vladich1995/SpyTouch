@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "agentMobile",
+    "name": "Smart Calculator",
     "slug": "agentMobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,12 +19,18 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/calculator_icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.vladimet.agentMobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e114e840-f4c5-46cf-a894-6e0288ed74ee"
+      }
     }
   }
 }

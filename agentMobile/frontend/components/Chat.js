@@ -2,6 +2,7 @@ import { FlatList, View, Button, StyleSheet, SafeAreaView,TextInput, Text, Image
 import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import Message from "./Message";
+import {BACKEND_URL} from '@env';
 
 
 //HwGv1Z
@@ -16,7 +17,7 @@ function Chat ({route}) {
     useEffect(()=>{
         const getUserParams = async () => {
             try{
-                await fetch(`http://192.168.1.20:8000/getuser/${route.params.id}`).then((response) => {
+                await fetch(`${BACKEND_URL}/getuser/${route.params.id}`).then((response) => {
                     return response.json();
                 }).then((data) => {
                     setUser(data.user);
@@ -107,7 +108,7 @@ function Chat ({route}) {
             });
             tempMessage = messageToSend;
             setMessageToSend("");
-            await fetch("http://192.168.1.20:8000/send", {
+            await fetch(`${BACKEND_URL}/send`, {
                 method: "POST",
                 headers: {
                     "Content-Type" : "application/json"
